@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout/plantilla :: head}">
+    <title>CineJosef</title>
+</head>
+<body class="bg-dark">
+
+
+
+<section th:fragment="listadoPeliculas" id="peliculas" class="py-5">
+    <div class="container-fluid">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h2 class="text-white mb-0">
+                    <i class="fas fa-film text-warning me-2"></i>Nuestras Películas
+                </h2>
+            </div>
+        </div>
+
+        <div class="row g-4" th:if="${peliculas != null and !#lists.isEmpty(peliculas)}">
+            <div class="col-lg-4 col-md-6" th:each="pelicula : ${peliculas}">
+                <div class="card bg-dark border-secondary h-100 shadow-lg">
+                    <div class="position-relative overflow-hidden">
+                        <img th:src="@{${pelicula.rutaImagen}}" 
+                             class="card-img-top" 
+                             style="height: 300px; object-fit: cover;"
+                             th:alt="${pelicula.titulo}"/>
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-warning text-dark fs-6">
+                                $[[${pelicula.costo}]]
+                            </span>
+                        </div>
+                        <div class="position-absolute bottom-0 start-0 m-2">
+                            <span class="badge bg-success">
+                                [[${pelicula.existencias}]] disponibles
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-white mb-2">[[${pelicula.titulo}]]</h5>
+                        <p class="card-text text-muted mb-3">
+                            <i class="fas fa-user-tie me-1"></i>[[${pelicula.director}]]
+                        </p>
+                        <div class="mt-auto">
+                            <form class="d-flex gap-2">
+                                <input type="hidden" name="idPelicula" th:value="${pelicula.idPelicula}"/>
+                                <input type="hidden" name="existencias" th:value="${pelicula.existencias}"/>
+                                <button class="btn btn-warning flex-grow-1" 
+                                        id="addCar" 
+                                        name="addCar" 
+                                        onclick="addCard(this.form)" 
+                                        type="button">
+                                    <i class="fas fa-cart-plus me-2"></i>Agregar al Carrito
+                                </button>
+                                <button class="btn btn-outline-info" type="button">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center py-5" th:if="${peliculas == null or #lists.isEmpty(peliculas)}">
+            <div class="alert alert-secondary" role="alert">
+                <i class="fas fa-film fa-3x mb-3 text-muted"></i>
+                <h4 class="text-muted">No hay películas disponibles</h4>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<div th:fragment="verCarrito" th:if="${!#lists.isEmpty(listaItems)}" class="position-fixed bottom-0 end-0 m-4">            
+    <form action="/carrito/listado">
+        <button type="submit" class="btn btn-warning btn-lg rounded-pill shadow-lg">
+            <i class="fas fa-shopping-cart me-2"></i>Ver Carrito [[${listaTotal}]]
+        </button>
+    </form>
+</div>
+
+
+<section th:fragment="listadoCarrito" id="items" class="py-5 bg-dark">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-header bg-gradient text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-shopping-cart me-2"></i>Carrito de Compras
+                        </h4>
+                    </div>
+
+                    <div th:if="${items != null and !#lists.isEmpty(items)}">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover">
+                                <thead class="table-warning">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Título</th>
+                                        <th class="text-center">Precio</th>
+                                        <th class="text-center">Cantidad</th>
+                                        <th class="text-center">Total</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="item, contador : ${items}">
+                                        <td class="align-middle">[[${contador.count}]]</td>
+                                        <td class="align-middle"><strong>[[${item.titulo}]]</strong></td>
+                                        <td class="text-center align-middle"><span class="badge bg-warning text-dark">$[[${item.costo}]]</span></td>
+                                        <td class="text-center align-middle"><span class="badge bg-info">[[${item.cantidad}]]</span></td>
+                                        <td class="text-center align-middle"><strong class="text-success">$[[${item.cantidad * item.costo}]]</strong></td>
+                                        <td class="text-center align-middle">
+                                            <div class="btn-group" role="group">
+                                                <a th:href="@{/carrito/modificar/}+${item.idPelicula}" class="btn btn-sm btn-outline-success"><i class='fas fa-edit'></i></a>
+                                                <a th:href="@{/carrito/eliminar/}+${item.idPelicula}" class="btn btn-sm btn-outline-danger"><i class='fas fa-trash'></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="text-center p-4" th:if="${items == null or #lists.isEmpty(items)}">
+                        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">El carrito está vacío</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sticky-top">
+                    <div class="card bg-gradient bg-warning text-dark mb-3">
+                        <div class="card-body text-center">
+                            <h3><i class="fas fa-calculator me-2"></i>Total de Compra</h3>
+                            <h2 class="fw-bold">[[${carritoTotal}]]</h2>
+                        </div>
+                    </div>
+
+                    <div class="card bg-dark border-secondary mb-3">
+                        <div class="card-body text-center">
+                            <a th:href="@{/}" class="btn btn-outline-success btn-lg w-100 mb-2">
+                                <i class='fas fa-arrow-left me-2'></i>Seguir Comprando
+                            </a>
+                            <a th:href="@{/facturar/carrito}" class="btn btn-success btn-lg w-100">
+                                <i class='fas fa-credit-card me-2'></i>Facturar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section th:fragment="modifica" class="py-5 bg-dark">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <a th:href="@{/carrito/listado}" class="btn btn-outline-warning">Regresar</a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-header bg-gradient text-white">
+                        <h5 class="card-title mb-0">Datos de la Película</h5>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-white">[[${item.titulo}]]</h5>
+                        <h6 class="card-subtitle mb-3">
+                            <span class="badge bg-warning text-dark me-2">$[[${item.costo}]]</span>
+                            <span class="badge bg-success">[[${item.existencias}]] disponibles</span>
+                        </h6>
+                        <p class="card-text text-muted">[[${item.director}]]</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-body text-center">
+                        <img th:src="@{${item.rutaImagen}}" 
+                             class="img-fluid rounded mb-3 shadow" 
+                             style="max-height: 200px; object-fit: cover;"
+                             th:alt="${item.titulo}"/>
+                        <form th:action="@{/carrito/guardar}" method="post" th:object="${item}">
+                            <input type="hidden" name="idPelicula" th:field="*{idPelicula}"/>
+                            <div class="mb-3">
+                                <label for="cantidad" class="form-label text-white">Cantidad</label>
+                                <input type="number" name="cantidad" th:field="*{cantidad}" min="1" th:max="${item.existencias}"
+                                       class="form-control bg-dark text-white border-secondary"/>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-success btn-lg" type="submit" name="guardar">Guardar</button>
+                                <a th:href="@{/carrito/eliminar/}+${item.idPelicula}" class="btn btn-outline-danger">Eliminar</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

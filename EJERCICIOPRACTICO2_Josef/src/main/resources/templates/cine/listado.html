@@ -1,0 +1,15 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+    <head th:replace="~{layout/plantilla :: head}">
+        <title>Cine</title>
+    </head>
+    <body>
+        <header th:replace="~{layout/plantilla :: header}"/>
+
+        <section th:replace="~{cine/fragmentos :: agregarPelicula}"/> 
+        <section th:replace="~{cine/fragmentos :: listadoPeliculas}"/>
+        <section th:replace="~{cine/fragmentos :: botonesAgregar}"/>
+
+        <footer th:replace="~{layout/plantilla :: footer}"/>
+    </body>
+</html>
