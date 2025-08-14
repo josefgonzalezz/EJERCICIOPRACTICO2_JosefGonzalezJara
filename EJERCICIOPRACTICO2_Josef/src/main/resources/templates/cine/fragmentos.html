@@ -227,6 +227,9 @@
                                 <span th:if="${!pelicula.reservado}" class="badge bg-success ms-2">Disponible</span>
                                 <span th:if="${pelicula.reservado}" class="badge bg-warning ms-2">Reservado</span>
                             </li>
+                            <li class="list-group-item bg-dark text-white border-secondary">
+                                <strong>Categoria:</strong> [[${pelicula.categoria.descripcion}]]
+                            </li>
                         </ul>
 
                         <div class="mt-auto">
